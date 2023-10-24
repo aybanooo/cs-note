@@ -146,7 +146,7 @@ export default function IndexPage() {
   function RemoveEmpty() {
 
     setNotes(curr => {
-      let target = [...curr].findLastIndex(IsEmpty);
+      let target = [...curr].reverse().findIndex(IsEmpty);
       if(target == -1) return [...curr];
       curr.splice(target, 1);
       return [...curr];
