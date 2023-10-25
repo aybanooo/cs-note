@@ -115,7 +115,10 @@ export default function IndexPage() {
       let d = [...curr];
       let target = d.find(x => x == note);
       if(!target || !target.escalationTemplate) return d;
-      target.escalationTemplate.value = value;
+      if(value)
+        target.escalationTemplate.value = value;
+      else
+        target.escalationTemplate = undefined;
       return d;
     });
   }
@@ -188,7 +191,7 @@ export default function IndexPage() {
     <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
       <div className='flex justify-center'>
         <div className='flex flex-col space-y-3 w-full md:w-4/5 lg:w-1/2'>
-          <div className='flex space-x-3'>
+          <div className='flex flex-col sm:flex-row gap-3'>
             <Button className='grow' disabled={!hasEmpty} onClick={RemoveEmpty} variant={'destructive'}><Icons.minus className="mr-2 h-4 w-5" />Remove Empty ({emptyCount} note{notes.length>1 ? 's' : ''})</Button>
             <Button className='grow' onClick={AddNewNote} variant={'secondary'}><Icons.plus className="mr-2 h-4 w-5" />Add New Note ({notes.length} note{notes.length>1 ? 's' : ''})</Button>
             <Button disabled={pending.length == 0} variant={'secondary'} className='text-amber-400' onClick={GetPending}>

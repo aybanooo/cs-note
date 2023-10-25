@@ -318,7 +318,7 @@ export default function Page() {
         <div className="">
           <DragDropContext onDragEnd={onDragEnd}>
             <div className="grid grid-cols-6 gap-5">
-              <div className="grid grid-rows-2 grid-cols-1 gap-5 col-span-2">
+              <div className="grid grid-rows-1 md:grid-rows-2 grid-cols-1 gap-5 col-span-6 md:col-span-2">
                 <Card className="col-span-2 h-fit shadow-xl">
                   <CardHeader>
                     <CardTitle>Components</CardTitle>
@@ -380,7 +380,7 @@ export default function Page() {
                     </Droppable>
                   </CardContent>
                 </Card>
-                <Card className="w-full shadow-xl h-fit col-span-2">
+                <Card className="hidden md:block w-full shadow-xl h-fit col-span-2">
                   <CardHeader>
                       <CardTitle>Data & Configuration</CardTitle>
                       {/* <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping</CardDescription> */}
@@ -394,7 +394,7 @@ export default function Page() {
                     </CardContent>
                 </Card>
               </div>
-              <Card className="col-span-4 h-fit shadow-xl">
+              <Card className="col-span-6 md:col-span-4 h-fit shadow-xl">
                 <CardHeader>
                   <CardTitle>Preview</CardTitle>
                   <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping</CardDescription>
@@ -459,6 +459,19 @@ export default function Page() {
                   <Button variant="outline">Pend</Button>
                 </CardFooter>
               </Card>
+              <Card className="block md:hidden w-full shadow-xl h-fit col-span-6">
+                  <CardHeader>
+                      <CardTitle>Data & Configuration</CardTitle>
+                      {/* <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping</CardDescription> */}
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid gap-3">
+                        <Input ref={upload} onChange={e=> OnFileUpload(e.target.files)} className="hidden" id="picture" type="file" />
+                        <Button onClick={Import}><Icons.copy className='h-4 w-4 mr-2' />Import</Button>
+                        <Button onClick={Export} variant={"secondary"}><Icons.copy className='h-4 w-4 mr-2' />Export</Button>
+                      </div>
+                    </CardContent>
+                </Card>
             </div>
           </DragDropContext>
         </div>
