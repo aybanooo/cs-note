@@ -3,7 +3,7 @@ export type SiteConfig = typeof siteConfig
 export const siteConfig = {
   name: "CS Note",
   description:
-    "Beautifully designed components built with Radix UI and Tailwind CSS.",
+    "A note taking app designed for documenting support tickets.",
   mainNav: [
     {
       title: "Notes",
@@ -18,8 +18,7 @@ export const siteConfig = {
     },
   ],
   links: {
-    twitter: "https://twitter.com/shadcn",
-    github: "https://github.com/shadcn/ui",
-    docs: "https://ui.shadcn.com",
+    github: "https://github.com/",
+    docs: "https://github.com/",
   },
 }

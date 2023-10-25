@@ -117,7 +117,7 @@ export default function DynamicField() {
                                     <FormItem className="space-y-2 grid grid-cols-4 items-center space-x-4">
                                         <FormLabel className="text-right">Username</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="shadcn" {...field} className="col-span-3" />
+                                            <Input {...field} className="col-span-3" />
                                         </FormControl>
                                         <FormMessage className="col-start-2 col-span-3" />
                                     </FormItem>
