@@ -105,7 +105,7 @@ export default function IndexPage() {
       let target = d.find(x => x == note);
       console.log(">", targetTemplate);
       if(!target || !targetTemplate) return d;
-      target.escalationTemplate = targetTemplate;
+      target.escalationTemplate = Object.assign({}, targetTemplate);
       return d;
     });
   }
