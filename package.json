@@ -14,6 +14,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache"
   },
   "dependencies": {
+    "@firebase/auth": "^1.4.0",
     "@hello-pangea/dnd": "^16.3.0",
     "@hookform/resolvers": "^3.3.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
@@ -27,6 +28,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "class-variance-authority": "^0.4.0",
     "clsx": "^1.2.1",
+    "firebase": "^10.6.0",
     "lodash": "^4.17.21",
     "lucide-react": "0.105.0-alpha.4",
     "next": "^13.4.8",
@@ -34,6 +36,7 @@
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
+    "react-firebase-hooks": "^5.1.1",
     "react-hook-form": "^7.47.0",
     "sharp": "^0.31.3",
     "tailwind-merge": "^1.13.2",
