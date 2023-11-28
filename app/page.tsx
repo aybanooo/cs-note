@@ -18,7 +18,12 @@ import { debounce } from 'lodash';
 import { IEscalationTemplate, EscalationTemplate } from '@/types/escalationTemplate';
 
 import { storageKeys , GetPendings, GetRedemptionTemplates, GetSetups, GetStoredNotes } from '@/lib/data';
+import * as fsClient from '@/lib/firebase/clientApp';
 
+import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '@/lib/firebase/clientApp';
+import { UserAuth } from './context/AuthContext';
 
 const storageKey = storageKeys.notes;
 const storageKey_pending = storageKeys.pending;
@@ -35,13 +40,40 @@ export default function IndexPage() {
   const [hasEmpty, setHasEmpty] = useState<boolean>(false)
   const [emptyCount, setEmptyCount] = useState<number>(0)
   
+  const {user} = UserAuth();
+
   useEffect(() => {
-    setNotes(GetStoredNotes())
-    setTemplate(GetRedemptionTemplates())
-    setPending(GetPendings())
-    setDynamicContent(GetSetups())
-    setLoading(false);
-  }, [])
+    let cancel = false;
+    if(fsClient.IsLoggedIn()) {
+      (async () => {
+          let notes = await fsClient.GetNotes();
+          
+          let pendings = await fsClient.GetPendings();
+          
+          let templates = await fsClient.GetTemplates();
+            
+          let setups = await fsClient.GetSetups();
+        
+          if(!cancel){
+            setTemplate(templates);
+            setPending(pendings);  
+            setNotes(notes);  
+            setDynamicContent(setups);
+          }
+
+      })()
+    } else {
+      setNotes(GetStoredNotes())
+      setTemplate(GetRedemptionTemplates())
+      setPending(GetPendings())
+      setDynamicContent(GetSetups())
+      setLoading(false);
+    }
+    return () => {
+      cancel = true;
+    }
+  }, [user])
+
 
   useEffect(() => {
     if(!dynamicContent.length) return;
@@ -64,9 +96,15 @@ export default function IndexPage() {
     PersistTemplates();
   }, [notes, pending])
 
-  const PersistTemplates = debounce(() => {
-    localStorage.setItem(storageKey, JSON.stringify(notes));
-    localStorage.setItem(storageKey_pending, JSON.stringify(pending));
+  const PersistTemplates = debounce(async () => {
+    // for notes
+    if(fsClient.IsLoggedIn()) {
+      await fsClient.SaveNotes(notes);
+      
+    } else {
+      localStorage.setItem(storageKey, JSON.stringify(notes));
+      localStorage.setItem(storageKey_pending, JSON.stringify(pending));
+    }
   }, 400);
 
   useEffect(() => {
