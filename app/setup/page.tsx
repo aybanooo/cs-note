@@ -105,6 +105,8 @@ const formSchema = z.object({
 import * as fsClient from '@/lib/firebase/clientApp'
 import { UserAuth } from "../context/AuthContext";
 import { useAuthState } from "react-firebase-hooks/auth";
+import PageLoader from "@/components/PageLoader";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 export default function Page() {
@@ -413,11 +415,7 @@ export default function Page() {
                       {/* <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping</CardDescription> */}
                     </CardHeader>
                     <CardContent>
-                      <div className="grid gap-3">
-                        <Input ref={upload} onChange={e=> OnFileUpload(e.target.files)} className="hidden" id="picture" type="file" />
-                        <Button onClick={Import}><Icons.copy className='h-4 w-4 mr-2' />Import</Button>
-                        <Button onClick={Export} variant={"secondary"}><Icons.copy className='h-4 w-4 mr-2' />Export</Button>
-                      </div>
+                      <ImportExportContent/>
                     </CardContent>
                 </Card>
               </div>
@@ -436,7 +434,18 @@ export default function Page() {
                             ref={provided.innerRef}
                             style={getListStyle(snapshot.isDraggingOver)}
                           >
-                            { loading ? <>Please wait...</> : items.map((item, index) => (
+                            { loading ? 
+                            <>
+                              <PageLoader>
+                                  <Skeleton className="h-5 w-20 mb-1" />
+                                  <Skeleton className="h-10 w-full mb-3" />
+                                  <Skeleton className="h-5 w-20 mb-1" />
+                                  <Skeleton className="h-10 w-full mb-3" />
+                                  <Skeleton className="h-5 w-20 mb-1" />
+                                  <Skeleton className="h-10 w-full mb-3" />
+                              </PageLoader>
+                            </> : 
+                            items.map((item, index) => (
                               <ContextMenu key={index}>
                                 <ContextMenuTrigger>
                                   <Draggable key={item.id} draggableId={item.id} index={index}>
@@ -492,11 +501,7 @@ export default function Page() {
                       {/* <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping</CardDescription> */}
                     </CardHeader>
                     <CardContent>
-                      <div className="grid gap-3">
-                        <Input ref={upload} onChange={e=> OnFileUpload(e.target.files)} className="hidden" id="picture" type="file" />
-                        <Button onClick={Import}><Icons.copy className='h-4 w-4 mr-2' />Import</Button>
-                        <Button onClick={Export} variant={"secondary"}><Icons.copy className='h-4 w-4 mr-2' />Export</Button>
-                      </div>
+                      <ImportExportContent/>
                     </CardContent>
                 </Card>
             </div>
@@ -507,4 +512,16 @@ export default function Page() {
       </div>
     </section>
   )
+  
+  function ImportExportContent() {
+    return (
+      <>
+        <div className="grid gap-3">
+          <Input ref={upload} onChange={e=> OnFileUpload(e.target.files)} className="hidden" id="picture" type="file" />
+          <Button disabled={loading} onClick={Import}><Icons.copy className='h-4 w-4 mr-2' />Import</Button>
+          <Button disabled={loading} onClick={Export} variant={"secondary"}><Icons.copy className='h-4 w-4 mr-2' />Export</Button>
+        </div>
+      </>
+    )
+  }
 }
