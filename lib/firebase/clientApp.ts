@@ -30,6 +30,13 @@ setPersistence(auth, indexedDBLocalPersistence)
 
 export const db = getFirestore(app);
 
+const env = process.env.NODE_ENV
+console.warn("Environment", env);
+
+if(env.toLocaleLowerCase() === "development") {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectFirestoreEmulator(db, "127.0.0.1", 9098);
+}  
 export function IsLoggedIn() {
   return auth.currentUser ? true : false
 }
