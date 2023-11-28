@@ -61,7 +61,6 @@ export async function SavePendings(notes:Note[]):Promise<void> {
 
 export async function SaveTemplates(templates:EscalationTemplate[]):Promise<void> {
   if(!IsLoggedIn()) return;
-  return;
   await SaveData(unprefix(storageKeys.templates), templates);
 }
 export async function SaveSetups(setups:NoteContent[]):Promise<void> {
