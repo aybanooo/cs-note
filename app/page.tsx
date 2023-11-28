@@ -100,7 +100,7 @@ export default function IndexPage() {
     // for notes
     if(fsClient.IsLoggedIn()) {
       await fsClient.SaveNotes(notes);
-      
+      await fsClient.SavePendings(pending);
     } else {
       localStorage.setItem(storageKey, JSON.stringify(notes));
       localStorage.setItem(storageKey_pending, JSON.stringify(pending));
