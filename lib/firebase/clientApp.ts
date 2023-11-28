@@ -8,7 +8,9 @@ import {
   getDocs,
   collection,
   setDoc,
-  getDocFromServer
+  getDocFromServer,
+  updateDoc,
+  getDoc,
  } from 'firebase/firestore'
 import { GoogleAuthProvider } from "firebase/auth";
 import { storageKeys } from "../data";
@@ -43,10 +45,24 @@ export function IsLoggedIn() {
 
 async function SaveData(key:string, data:any) {
   if(!IsLoggedIn()) return;
-  const docRef = doc(db, "notes", auth.currentUser!.uid);
-  let d:any = {};
-  d[key] = data;
-  let resp = await setDoc(docRef, d, { merge: true });
+  const docRef = doc(db, "cs-notes", auth.currentUser!.uid);
+  let fetchedData = getDoc(docRef);
+
+  if(!(await fetchedData).exists()) {
+    let newDoc:any = {
+      notes: [],
+      pending: [],
+      setup: [],
+      templates: []
+    };
+    newDoc[key] = data;
+    await setDoc(docRef, newDoc)
+    return;
+  } else {
+    let d:any = {};
+    d[key] = data;
+    let resp = await updateDoc(docRef, d);
+  }
 }
 
 export async function SaveNotes(notes:Note[]):Promise<void> {
@@ -61,6 +77,7 @@ export async function SavePendings(notes:Note[]):Promise<void> {
 
 export async function SaveTemplates(templates:EscalationTemplate[]):Promise<void> {
   if(!IsLoggedIn()) return;
+  console.warn("Saving Templates", templates);
   await SaveData(unprefix(storageKeys.templates), templates);
 }
 export async function SaveSetups(setups:NoteContent[]):Promise<void> {
@@ -69,15 +86,19 @@ export async function SaveSetups(setups:NoteContent[]):Promise<void> {
 }
 
 async function GetData<T>(key:string):Promise<T[]> {
-  let data = localStorage.getItem(key) as any;
-  try {
-    const docRef = doc(db, "notes", auth.currentUser!.uid);
-    const docSnap:any = await getDocFromServer(docRef);
-    const data = docSnap.data()[key] as T[];
-    return data ?? [];
-  } catch {
-      return []
-  }
+    const docRef = doc(db, "cs-notes", auth.currentUser!.uid);
+    const docSnap = await getDocFromServer(docRef);
+    if(!docSnap.exists()) return [];
+    let snapData:any = docSnap.data();
+    if(key.includes("templates")) {
+      console.warn(auth.currentUser!.uid, snapData);
+    }
+
+    //if(!Object.hasOwn(snapData, key)) return [];
+
+    const data = snapData[key] as T[];
+    return data;
+  
 }
 
 const unprefix = (value:string) => value.replaceAll("csnote-", "")

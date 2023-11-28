@@ -63,6 +63,9 @@ export default function EscalationTemplateManager() {
       (async () => {
         let templates = await fsClient.GetTemplates()
         if (!cancel) {
+          if(templates.length == 0) {
+            debugger;
+          }
           setTemplates(templates);
         }
         setLoading(false);
@@ -87,7 +90,7 @@ export default function EscalationTemplateManager() {
   }, [user, isLoading])
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || isLoading) return;
       PersistTemplates();
     return () => {
       PersistTemplates.cancel()
