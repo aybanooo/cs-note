@@ -49,12 +49,17 @@ export async function SaveNotes(notes:Note[]):Promise<void> {
   await SaveData("notes", notes);
 }
 
+export async function SaveTemplates(templates:EscalationTemplate[]):Promise<void> {
+  if(!IsLoggedIn()) return;
+  await SaveData(unprefix(storageKeys.templates), templates);
+}
+
 async function GetData<T>(key:string):Promise<T[]> {
   let data = localStorage.getItem(key) as any;
   try {
-    const docRef = doc(db, key, auth.currentUser!.uid);
+    const docRef = doc(db, "notes", auth.currentUser!.uid);
     const docSnap:any = await getDoc(docRef);
-    const data = docSnap.data().notes as T[];
+    const data = docSnap.data()[key] as T[];
     return data ?? [];
   } catch {
       return []
