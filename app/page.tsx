@@ -24,6 +24,8 @@ import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth } from '@/lib/firebase/clientApp';
 import { UserAuth } from './context/AuthContext';
+import PageLoader from '@/components/PageLoader';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const storageKey = storageKeys.notes;
 const storageKey_pending = storageKeys.pending;
@@ -40,9 +42,10 @@ export default function IndexPage() {
   const [hasEmpty, setHasEmpty] = useState<boolean>(false)
   const [emptyCount, setEmptyCount] = useState<number>(0)
   
-  const {user} = UserAuth();
+  const {user, isLoading: userIsLoading} = UserAuth();
 
   useEffect(() => {
+    if(userIsLoading) return;
     let cancel = false;
     if(fsClient.IsLoggedIn()) {
       (async () => {
@@ -72,7 +75,7 @@ export default function IndexPage() {
     return () => {
       cancel = true;
     }
-  }, [user])
+  }, [user, userIsLoading])
 
 
   useEffect(() => {
@@ -223,6 +226,25 @@ export default function IndexPage() {
       d = d.filter(x=>x.guid != pendingNote.guid);
       return d;
     })
+  }
+
+  if(userIsLoading) {
+    return (
+    <PageLoader>
+    <section className="container grid items-center gap-6 pb-8 pt-6 md:py-10">
+      <div className='flex justify-center'>
+        <div className='flex flex-col space-y-3 w-full md:w-4/5 lg:w-1/2'>
+          <div className='flex flex-col sm:flex-row gap-3'>
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-40" />
+          </div>
+          <Skeleton className="h-80 w-full"/>
+        </div>
+      </div>
+    </section>
+    </PageLoader>
+    )
   }
 
   return (
