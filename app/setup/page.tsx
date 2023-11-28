@@ -102,30 +102,57 @@ const formSchema = z.object({
   Label: z.string().min(2).max(15),
 })
 
+import * as fsClient from '@/lib/firebase/clientApp'
+import { UserAuth } from "../context/AuthContext";
+import { useAuthState } from "react-firebase-hooks/auth";
+
+
 export default function Page() {
 
   const [items, setItems] = useState<NoteContent[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [sloading, setLoading] = useState(true);
   const [dialogItem, setDialogItem] = useState<DialogContent>();
   const [open, setOpen] = useState(false);
-
+  const {user, isLoading: loading} = UserAuth();
   const PersistTemplates = debounce(() => {
-    localStorage.setItem(storageKey, JSON.stringify(items));
+    if(fsClient.IsLoggedIn()) {
+      fsClient.SaveSetups(items);
+    } else {
+      localStorage.setItem(storageKey, JSON.stringify(items));
+    }
   }, 400);
 
   useEffect(() => {
-    let result = localStorage.getItem(storageKey);
-    if (result != null) {
-      try {
-        let t: NoteContent[] = JSON.parse(result);
-        console.log(t);
-        setItems(t);
-      } catch {
-
+    setLoading(true);
+    let cancel = false;
+    if(fsClient.IsLoggedIn()) {
+      (async () => {
+        let data = await fsClient.GetSetups();
+        if(!cancel) {
+          setItems(data);
+        }
+        setLoading(false);
+        return;
+      })()
+    } else {
+      let result = localStorage.getItem(storageKey);
+      if (result != null) {
+        try {
+          let t: NoteContent[] = JSON.parse(result);
+          console.log(t);
+          if(!cancel) {
+            setItems(t);
+            setLoading(false);
+          }
+        } catch {
+          setLoading(false);
+        }
       }
     }
-    setLoading(false);
-  }, [])
+    return () => {
+      cancel = true;
+    }
+  }, [user])
 
   useEffect(() => {
     if (loading) return;
@@ -245,8 +272,8 @@ export default function Page() {
   }, [NewId, items])
 
 
-  function Export() {
-    let d = GetAllData();    
+  async function Export() {
+    let d = await GetAllData();    
     const jsonString = `data:text/json;chatset=utf-8,${encodeURIComponent(
         JSON.stringify(d)
       )}`;
@@ -409,7 +436,7 @@ export default function Page() {
                             ref={provided.innerRef}
                             style={getListStyle(snapshot.isDraggingOver)}
                           >
-                            {items.map((item, index) => (
+                            { loading ? <>Please wait...</> : items.map((item, index) => (
                               <ContextMenu key={index}>
                                 <ContextMenuTrigger>
                                   <Draggable key={item.id} draggableId={item.id} index={index}>
