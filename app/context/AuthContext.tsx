@@ -6,6 +6,7 @@ import { auth } from "@/lib/firebase/clientApp";
 
 const AuthContext = createContext<AuthContextValue>({
     user: undefined,
+    isLoading: true,
     signIn: ()=>null,
     signOut: async()=>true
 })
@@ -17,7 +18,8 @@ export interface User {
 }
 
 export interface AuthContextValue {
-    user?:User,
+    user?:User
+    isLoading:boolean
     signIn: ()=>void
     signOut: ()=>Promise<boolean>
 }
@@ -42,6 +44,7 @@ export const AuthContextProvider =  ({children}:{children:React.ReactNode}) => {
                 email: user.email || "",
                 photoUrl: user?.photoURL || ""
             }: undefined),
+            isLoading: loading,
             signIn: signIn,
             signOut: signOut
         }}>
