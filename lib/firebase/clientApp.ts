@@ -25,12 +25,18 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
+const hostname = window.location.hostname;
+
+
 export const auth = getAuth(app);
 setPersistence(auth, indexedDBLocalPersistence)
-connectAuthEmulator(auth, "http://127.0.0.1:9099");
 
 export const db = getFirestore(app);
-connectFirestoreEmulator(db, "127.0.0.1", 9098);
+
+if(hostname.includes('localhost')) {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectFirestoreEmulator(db, "127.0.0.1", 9098);
+}
 
 export function IsLoggedIn() {
   return auth.currentUser ? true : false
