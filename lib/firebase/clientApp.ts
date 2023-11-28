@@ -6,9 +6,9 @@ import {
   connectFirestoreEmulator,
   doc,
   getDocs,
-  getDoc,
   collection,
-  setDoc
+  setDoc,
+  getDocFromServer
  } from 'firebase/firestore'
 import { GoogleAuthProvider } from "firebase/auth";
 import { storageKeys } from "../data";
@@ -33,7 +33,7 @@ export const db = getFirestore(app);
 const env = process.env.NODE_ENV
 console.warn("Environment", env);
 
-if(env.toLocaleLowerCase() === "development") {
+if(env.toLocaleLowerCase() == "development") {
   connectAuthEmulator(auth, "http://127.0.0.1:9099");
   connectFirestoreEmulator(db, "127.0.0.1", 9098);
 }  
@@ -61,6 +61,7 @@ export async function SavePendings(notes:Note[]):Promise<void> {
 
 export async function SaveTemplates(templates:EscalationTemplate[]):Promise<void> {
   if(!IsLoggedIn()) return;
+  return;
   await SaveData(unprefix(storageKeys.templates), templates);
 }
 export async function SaveSetups(setups:NoteContent[]):Promise<void> {
@@ -72,7 +73,7 @@ async function GetData<T>(key:string):Promise<T[]> {
   let data = localStorage.getItem(key) as any;
   try {
     const docRef = doc(db, "notes", auth.currentUser!.uid);
-    const docSnap:any = await getDoc(docRef);
+    const docSnap:any = await getDocFromServer(docRef);
     const data = docSnap.data()[key] as T[];
     return data ?? [];
   } catch {
