@@ -111,7 +111,7 @@ export default function CardWithForm({note, noteDynamicContent, templates, OnUpd
                 </SelectTrigger>
                 <SelectContent position="popper">
                   {
-                    templates.map(t => <SelectItem key={t.guid} value={t.guid}>{t.label}</SelectItem>)
+                    templates.toSorted((x,y)=> x.label.localeCompare(y.label) ).map(t => <SelectItem key={t.guid} value={t.guid}>{t.label}</SelectItem>)
                   }
                 </SelectContent>
         </Select>

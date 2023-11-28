@@ -63,7 +63,7 @@ export default function IndexPage() {
             setNotes(notes);  
             setDynamicContent(setups);
           }
-
+          setLoading(false);
       })()
     } else {
       setNotes(GetStoredNotes())
@@ -122,7 +122,6 @@ export default function IndexPage() {
   function IsEmpty(note :Note) {
     let ids = dynamicContent.map(x=>x.id);
     let hasRedemption = note.escalationTemplate;
-    console.log(hasRedemption, "escal template");
     return !note.dynamicContent.filter(x=>ids.includes(x.id)).some(x=>x.value) && !hasRedemption;
   }
 
@@ -144,7 +143,6 @@ export default function IndexPage() {
     setNotes( curr => {
       let d = [...curr];
       let target = d.find(x => x == note);
-      console.log(">", targetTemplate);
       if(!target || !targetTemplate) return d;
       target.escalationTemplate = Object.assign({}, targetTemplate);
       return d;

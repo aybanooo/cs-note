@@ -45,7 +45,7 @@ export default function EscalationTemplateManager() {
   const [selectedIsNew, setSelectedIsNew] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const { user } = UserAuth();
+  const { user, isLoading } = UserAuth();
 
 
   const PersistTemplates = debounce(() => {
@@ -57,6 +57,7 @@ export default function EscalationTemplateManager() {
   }, 400);
 
   useEffect(() => {
+    if(isLoading) return;
     let cancel = false;
     if (fsClient.IsLoggedIn()) {
       (async () => {
@@ -83,11 +84,14 @@ export default function EscalationTemplateManager() {
     return () => {
       cancel = true;
     }
-  }, [user])
+  }, [user, isLoading])
 
   useEffect(() => {
     if (loading) return;
-    PersistTemplates();
+      PersistTemplates();
+    return () => {
+      PersistTemplates.cancel()
+    }
   }, [templates])
 
   useEffect(() => {
@@ -187,7 +191,7 @@ export default function EscalationTemplateManager() {
               })
               :
               <>
-                {templates.map((t, i) => (
+                {templates.toSorted( (x,y) =>x.label.localeCompare(y.label)).map((t, i) => (
                   <ContextMenu key={i}>
                     <DialogTrigger asChild>
                       <ContextMenuTrigger asChild>
