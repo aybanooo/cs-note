@@ -34,3 +34,10 @@ yarn-error.log*
 
 .contentlayer
 .env
+
+# firebase
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+firestore-debug.*.log
+ui-debug.log
