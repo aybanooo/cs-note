@@ -46,12 +46,21 @@ async function SaveData(key:string, data:any) {
 
 export async function SaveNotes(notes:Note[]):Promise<void> {
   if(!IsLoggedIn()) return;
-  await SaveData("notes", notes);
+  await SaveData(unprefix(storageKeys.notes), notes);
+}
+
+export async function SavePendings(notes:Note[]):Promise<void> {
+  if(!IsLoggedIn()) return;
+  await SaveData(unprefix(storageKeys.pending), notes);
 }
 
 export async function SaveTemplates(templates:EscalationTemplate[]):Promise<void> {
   if(!IsLoggedIn()) return;
   await SaveData(unprefix(storageKeys.templates), templates);
+}
+export async function SaveSetups(setups:NoteContent[]):Promise<void> {
+  if(!IsLoggedIn()) return;
+  await SaveData(unprefix(storageKeys.setup), setups);
 }
 
 async function GetData<T>(key:string):Promise<T[]> {
