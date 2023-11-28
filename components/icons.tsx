@@ -10,7 +10,7 @@ import {
   Archive,
   Trash,
   Trash2,
-  Loader,
+  Loader2,
   GripVertical,
   type Icon as LucideIcon,
 } from "lucide-react"
@@ -32,7 +32,7 @@ export const Icons = {
   sun: SunMedium,
   moon: Moon,
   twitter: Twitter,
-  spinner: Loader,
+  spinner: Loader2,
   logo: (props: any) => (
     <Image src={noteLogo} alt="site logo" {...props}/>
   ),
