@@ -191,7 +191,7 @@ export default function EscalationTemplateManager() {
               })
               :
               <>
-                {templates.toSorted( (x,y) =>x.label.localeCompare(y.label)).map((t, i) => (
+                {[...templates].sort( (x,y) =>x.label.localeCompare(y.label)).map((t, i) => (
                   <ContextMenu key={i}>
                     <DialogTrigger asChild>
                       <ContextMenuTrigger asChild>
