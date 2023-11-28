@@ -17,9 +17,10 @@ import {
   } from "@/components/ui/dropdown-menu"
   
 import { UserAuth } from '../app/context/AuthContext';
+import { Icons } from "./icons";
 
   export function UserNav() {
-    const { user, signIn, signOut } = UserAuth();
+    const { user, signIn, signOut, isLoading } = UserAuth();
 
     if(user)
       return (
@@ -50,5 +51,12 @@ import { UserAuth } from '../app/context/AuthContext';
         </DropdownMenu>
     )
     else
-        return <Button onClick={signIn} size={"sm"}>Login</Button>
+        return <Button disabled={isLoading} onClick={signIn}>
+            {isLoading ? (
+                <Icons.spinner className="h-4 w-4 animate-spin" />
+            ) : 
+                "Login"
+            }
+        </Button>
+        
   }
