@@ -12,7 +12,7 @@ export interface NoteContent {
 export interface Note {
     guid: string,
     dynamicContent: NoteContent[],
-    escalationTemplate?: IEscalationTemplate
+    escalationTemplate: IEscalationTemplate | null
 }
 
 export interface NoteDynamicContent {

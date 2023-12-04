@@ -102,8 +102,10 @@ export default function IndexPage() {
   const PersistTemplates = debounce(async () => {
     // for notes
     if(fsClient.IsLoggedIn()) {
-      await fsClient.SaveNotes(notes);
-      await fsClient.SavePendings(pending);
+      console.log(notes, pending);
+      await fsClient.SaveNotesAndPendings(notes, pending);
+      // await fsClient.SaveNotes(notes);
+      // await fsClient.SavePendings(pending);
     } else {
       localStorage.setItem(storageKey, JSON.stringify(notes));
       localStorage.setItem(storageKey_pending, JSON.stringify(pending));
@@ -157,7 +159,7 @@ export default function IndexPage() {
       if(value)
         target.escalationTemplate.value = value;
       else
-        target.escalationTemplate = undefined;
+        target.escalationTemplate = null;
       return d;
     });
   }
@@ -177,6 +179,7 @@ export default function IndexPage() {
       let newNote: Note = {
         guid: uuidv4(),
         dynamicContent: [],
+        escalationTemplate: null
       };
       dynamicContent.forEach(x=> {
         newNote.dynamicContent.push(Object.assign({},x) );
@@ -201,7 +204,7 @@ export default function IndexPage() {
       let target = curr.findIndex(x=>x.guid === note.guid);
       if(target == -1) return [...curr];
       curr[target].dynamicContent.forEach(d => d.value = "");
-      curr[target].escalationTemplate = undefined;
+      curr[target].escalationTemplate = null;
       return [...curr];
     });
   }

@@ -1,5 +1,5 @@
 import { Note, NoteContent } from "@/types/note";
-import {initializeApp} from "firebase/app";
+import {FirebaseOptions, initializeApp} from "firebase/app";
 import { getAuth, connectAuthEmulator, indexedDBLocalPersistence, setPersistence } from "firebase/auth";
 import { 
   getFirestore, 
@@ -16,13 +16,13 @@ import { GoogleAuthProvider } from "firebase/auth";
 import { storageKeys } from "../data";
 import { EscalationTemplate } from "@/types/escalationTemplate";
 
-const firebaseConfig = {
+const firebaseConfig:FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -41,6 +41,11 @@ if(env.toLocaleLowerCase() == "development") {
 }  
 export function IsLoggedIn() {
   return auth.currentUser ? true : false
+}
+
+function GetUserDocRef() {
+  const docRef = doc(db, "cs-notes", auth.currentUser!.uid);
+  return docRef;
 }
 
 async function SaveData(key:string, data:any) {
@@ -68,6 +73,28 @@ async function SaveData(key:string, data:any) {
 export async function SaveNotes(notes:Note[]):Promise<void> {
   if(!IsLoggedIn()) return;
   await SaveData(unprefix(storageKeys.notes), notes);
+}
+
+export async function SaveNotesAndPendings(notes:Note[], pendings:Note[]):Promise<void> {
+  if(!IsLoggedIn()) return;
+  var docRef = GetUserDocRef();
+  var docSnap = getDoc(docRef);
+  if(!(await docSnap).exists()) {
+    let newDoc:any = {
+      notes: notes,
+      pending: pendings,
+      setup: [],
+      templates: []
+    };
+    await setDoc(docRef, newDoc);
+    return;
+  } else {
+    let d:any = {};
+    d[unprefix(storageKeys.notes)] = notes || [];
+    d[unprefix(storageKeys.pending)] = pendings || [];
+    console.warn(d);
+    updateDoc(docRef, d)
+  }
 }
 
 export async function SavePendings(notes:Note[]):Promise<void> {
