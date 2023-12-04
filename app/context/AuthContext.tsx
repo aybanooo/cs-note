@@ -31,7 +31,7 @@ export const AuthContextProvider =  ({children}:{children:React.ReactNode}) => {
     const [firebaseSignOut] = useSignOut(auth);
     
     function signIn() {
-        signInWithGoogle()
+        signInWithGoogle(undefined, {prompt: "select_account"})
     }
 
     async function signOut() {
