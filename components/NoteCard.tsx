@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Select,
   SelectContent,
@@ -110,9 +111,11 @@ export default function CardWithForm({note, noteDynamicContent, templates, OnUpd
                   <SelectValue placeholder="Escalation Templates" />
                 </SelectTrigger>
                 <SelectContent position="popper">
-                  {
-                    [...templates].sort((x,y)=> x.label.localeCompare(y.label) ).map(t => <SelectItem key={t.guid} value={t.guid}>{t.label}</SelectItem>)
-                  }
+                  <ScrollArea className="h-[300px]">
+                    {
+                      [...templates].sort((x,y)=> x.label.localeCompare(y.label) ).map(t => <SelectItem key={t.guid} value={t.guid}>{t.label}</SelectItem>)
+                    }
+                  </ScrollArea>
                 </SelectContent>
         </Select>
         <AlertDialog>
