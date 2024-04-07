@@ -103,10 +103,12 @@ export function ImportData(data:ExportableData) {
         fsClient.SavePendings(data.pending);
         fsClient.SaveSetups(data.setup);
         fsClient.SaveTemplates(data.templates);
+        fsClient.SaveStandardTemplates(data.standard_templates);
     } else {
         localStorage.setItem(storageKeys.notes, s(data.notes));
         localStorage.setItem(storageKeys.pending, s(data.pending));
         localStorage.setItem(storageKeys.setup, s(data.setup));
         localStorage.setItem(storageKeys.templates, s(data.templates));
+        localStorage.setItem(storageKeys.standard_templates, s(data.standard_templates));
     }
 }
