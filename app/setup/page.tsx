@@ -200,6 +200,16 @@ export default function Page() {
 
   }
 
+  function OnComponentValueChange(fieldId:string, value:string) {
+    setItems( curr => {
+        let currCopy = [...curr];
+        let target = currCopy.find(x=>x.id === fieldId);
+        if(!target) return currCopy;
+        target.value = value;
+        return currCopy;
+    })
+  }
+
   function RemoveItem(data: NoteContent): void {
     setItems(curr => {
       const d = curr.filter(item => item.id != data.id);
@@ -422,7 +432,7 @@ export default function Page() {
               <Card className="col-span-6 md:col-span-4 h-fit shadow-xl">
                 <CardHeader>
                   <CardTitle>Preview</CardTitle>
-                  <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping</CardDescription>
+                  <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping. You can set default values by typing it in the created fields/components. For other action, you can righ-click a field.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form>
@@ -460,11 +470,11 @@ export default function Page() {
                                         )}
                                       >
                                         <Label className="basis-" htmlFor="account">{item.title}</Label>
-                                        <div className="flex space-x-2" style={{ pointerEvents: "none" }}>
+                                        <div className="flex space-x-2">
                                           {item.type == "input" ? (
-                                            <Input id={item.id} />
+                                            <Input id={item.id} value={item.value} onChange={ e => OnComponentValueChange(item.id, e.target.value)}  />
                                           ) : (
-                                            <Textarea></Textarea>
+                                            <Textarea value={item.value} onChange={ e => OnComponentValueChange(item.id, e.target.value)}></Textarea>
                                           )}
                                           <Button style={{ pointerEvents: "none" }} type="button" variant="ghost" size="icon"><Icons.copy className='h-4 w-4' /></Button>
                                         </div>
