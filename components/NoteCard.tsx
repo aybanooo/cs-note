@@ -109,7 +109,7 @@ export default function CardWithForm({note, noteDynamicContent, templates, stand
                               )
                               return <ContextMenuItem disabled >No Template</ContextMenuItem>;
                               return inputTemplate!.templates.map(tg => 
-                                <ContextMenuItem onClick={() => OnUpdateData(note, input.id, tg.value)} >{tg.label}</ContextMenuItem>
+                                <ContextMenuItem key={tg.guid} onClick={() => OnUpdateData(note, input.id, tg.value)} >{tg.label}</ContextMenuItem>
                               );
                             })()
                           }

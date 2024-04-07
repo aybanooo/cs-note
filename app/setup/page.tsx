@@ -81,7 +81,7 @@ const copy = (source: NoteContentInputType[], destination: NoteContent[], droppa
     type: item,
     title: "New",
     value: "",
-    standardTemplateGroupId: undefined,
+    standardTemplateGroupId: null,
   });
   console.log('==> dest clone', destClone);
   return destClone;
@@ -560,14 +560,14 @@ export default function Page() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-2 py-4">
-              <Select onValueChange={t => UpdateAssignedTemplate(t)} value={selectedNoteContent?.standardTemplateGroupId}>
+              <Select onValueChange={t => UpdateAssignedTemplate(t)} value={selectedNoteContent?.standardTemplateGroupId ?? undefined}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a template group" />
                 </SelectTrigger>
                 <SelectContent>
                   {
                     standardTemplateGroups.map( tg => 
-                      <SelectItem value={tg.guid}>{tg.groupName}</SelectItem>
+                      <SelectItem key={tg.guid} value={tg.guid}>{tg.groupName}</SelectItem>
                     )
                   }
                 </SelectContent>
