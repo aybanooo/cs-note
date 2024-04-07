@@ -3,6 +3,7 @@ import { EscalationTemplate } from "@/types/escalationTemplate";
 import { debug } from "console";
 
 import * as fsClient from '@/lib/firebase/clientApp'
+import { StandardTemplateGroup } from "@/types/standardTemplateGroup";
 
 const storageKey = 'csnote-notes';
 const storageKey_pending = 'csnote-pending';
@@ -15,7 +16,8 @@ export const storageKeys = {
     notes: prefix('notes'),
     pending: prefix('pending'),
     setup: prefix('setup'),
-    templates: prefix('templates')
+    templates: prefix('templates'),
+    standard_templates: prefix('standard_templates')
 };
 
 function GetData<T>(key:string):T[] {
@@ -50,11 +52,18 @@ export function GetRedemptionTemplates():EscalationTemplate[] {
     return data;
 }
 
+
+export function GetStandardTemplates():StandardTemplateGroup[] {
+    let data = GetData<StandardTemplateGroup>(storageKeys.standard_templates)
+    return data;
+}
+
 export type ExportableData = {
     notes: Note[],
     pending: Note[],
     setup:NoteContent[]
     templates:EscalationTemplate[],
+    standard_templates:StandardTemplateGroup[],
 }
 
 
@@ -65,12 +74,14 @@ export async function GetAllData() {
         let firePendings = await fsClient.GetPendings();
         let fireSetups = await fsClient.GetSetups();
         let fireTemplates = await fsClient.GetTemplates();
+        let fireStandardTemplates = await fsClient.GetStandardTemplates();
 
         let data:ExportableData = {
             notes: fireNotes,
             pending: firePendings,
             setup: fireSetups,
-            templates: fireTemplates
+            templates: fireTemplates,
+            standard_templates: fireStandardTemplates
         };
         return data;
     } else {
@@ -78,7 +89,8 @@ export async function GetAllData() {
             notes: GetStoredNotes(),
             pending: GetPendings(),
             setup: GetSetups(),
-            templates: GetRedemptionTemplates()
+            templates: GetRedemptionTemplates(),
+            standard_templates: GetStandardTemplates()
         };
         return data;
     }

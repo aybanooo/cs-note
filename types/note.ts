@@ -6,7 +6,8 @@ export interface NoteContent {
     id:string,
     title:string,
     type:NoteContentInputType,
-    value:string
+    value:string,
+    standardTemplateGroupId?:string
 }
 
 export interface Note {

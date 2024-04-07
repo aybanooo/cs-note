@@ -15,6 +15,7 @@ import {
 import { GoogleAuthProvider } from "firebase/auth";
 import { storageKeys } from "../data";
 import { EscalationTemplate } from "@/types/escalationTemplate";
+import { StandardTemplateGroup } from "@/types/standardTemplateGroup";
 
 const firebaseConfig:FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -107,18 +108,27 @@ export async function SaveTemplates(templates:EscalationTemplate[]):Promise<void
   console.warn("Saving Templates", templates);
   await SaveData(unprefix(storageKeys.templates), templates);
 }
+
+
+export async function SaveStandardTemplates(templates:StandardTemplateGroup[]):Promise<void> {
+  if(!IsLoggedIn()) return;
+  console.warn("Saving Standard Templates", templates);
+  await SaveData(unprefix(storageKeys.standard_templates), templates);
+}
+
 export async function SaveSetups(setups:NoteContent[]):Promise<void> {
   if(!IsLoggedIn()) return;
   await SaveData(unprefix(storageKeys.setup), setups);
 }
 
 async function GetData<T>(key:string):Promise<T[]> {
+    if(auth.currentUser == null) return [];
     const docRef = doc(db, "cs-notes", auth.currentUser!.uid);
     const docSnap = await getDocFromServer(docRef);
     if(!docSnap.exists()) return [];
     let snapData:any = docSnap.data();
     if(key.includes("templates")) {
-      console.warn(auth.currentUser!.uid, snapData);
+      // console.warn(auth.currentUser?.uid, snapData);
     }
 
     //if(!Object.hasOwn(snapData, key)) return [];
@@ -145,6 +155,10 @@ export async function GetTemplates():Promise<EscalationTemplate[]> {
   return data ?? [];
 }
 
+export async function GetStandardTemplates():Promise<StandardTemplateGroup[]> {
+  const data = await GetData<StandardTemplateGroup>(unprefix(storageKeys.standard_templates));
+  return data ?? [];
+}
 export async function GetSetups():Promise<NoteContent[]> {
   const data = await GetData<NoteContent>(unprefix(storageKeys.setup));
   return data ?? [];

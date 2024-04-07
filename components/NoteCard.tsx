@@ -36,6 +36,9 @@ import {Note, NoteContent} from '@/types/note'
 import {Icons} from '@/components/icons'
 import { Textarea } from "@/components/ui/textarea"
 import { IEscalationTemplate, EscalationTemplate } from "@/types/escalationTemplate"
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "./ui/context-menu"
+import { StandardTemplateGroup } from "@/types/standardTemplateGroup"
+import { ReactNode } from "react"
 
 
 
@@ -48,11 +51,14 @@ type props = {
   OnClearNote: (note: Note) => void,
   OnMoveToPending: (note: Note) => void,
   noteDynamicContent: NoteContent[],
-  templates: EscalationTemplate[]
+  templates: EscalationTemplate[],
+  standardTemplateGroups: StandardTemplateGroup[]
 }
 
-export default function CardWithForm({note, noteDynamicContent, templates, OnUpdateData, OnClearNote, OnRemoveNote, OnMoveToPending, OnUpdateEscalation, OnUpdateEscalationValue}: props) {
+export default function CardWithForm({note, noteDynamicContent, templates, standardTemplateGroups, OnUpdateData, OnClearNote, OnRemoveNote, OnMoveToPending, OnUpdateEscalation, OnUpdateEscalationValue}: props) {
   const { toast } = useToast()
+
+  const hasTemplateGroup = (noteContent:NoteContent) => noteContent.standardTemplateGroupId != null;
 
   function CopyToClipboard(label:string ,value: string) {
     navigator.clipboard.writeText(value);
@@ -81,13 +87,35 @@ export default function CardWithForm({note, noteDynamicContent, templates, OnUpd
                 <div key={input.id} className="flex flex-col space-y-1.5">
                   <Label className="basis-" htmlFor={input.id}>{input.title}</Label>
                   <div className="flex space-x-2">
+                    <ContextMenu>
+                      <ContextMenuTrigger asChild onClick={() => console.log("sad")}>
                     {
                       input.type == "input" ?
                       <Input autoComplete="off" id={input.id} value={GetContentValue(input.id)} onChange={e=> OnUpdateData(note, input.id, e.target.value)}/> 
                       :
                       <Textarea autoComplete="off" id={input.id} value={GetContentValue(input.id)} onChange={e=> OnUpdateData(note, input.id, e.target.value)}/>
                     }
-                    
+                      </ContextMenuTrigger>
+                      <ContextMenuContent>
+                        <ContextMenuLabel>Templates</ContextMenuLabel>
+                        <CtxContainer scrollable={(standardTemplateGroups.find(x=>x.guid == input?.standardTemplateGroupId)?.templates.length ?? 0 ) > 10 ?? false}>
+                          {
+                            (() => {
+                              let inputTemplate = standardTemplateGroups.find(x=>x.guid == input!.standardTemplateGroupId);
+                              if(
+                                input.standardTemplateGroupId == null
+                                || inputTemplate == null
+                                || inputTemplate.templates.length == 0
+                              )
+                              return <ContextMenuItem disabled >No Template</ContextMenuItem>;
+                              return inputTemplate!.templates.map(tg => 
+                                <ContextMenuItem onClick={() => OnUpdateData(note, input.id, tg.value)} >{tg.label}</ContextMenuItem>
+                              );
+                            })()
+                          }
+                        </CtxContainer>
+                      </ContextMenuContent>
+                    </ContextMenu>
                     <Button type="button" variant="ghost" size="icon" onClick={e => CopyToClipboard(input.title, GetContentValue(input.id))}><Icons.copy className='h-4 w-4' /></Button>
                   </div>
                 </div>
@@ -138,5 +166,19 @@ export default function CardWithForm({note, noteDynamicContent, templates, OnUpd
         <Button variant="outline" onClick={e=>OnMoveToPending(note)}>Pend</Button>
       </CardFooter>
     </Card>
+  )
+}
+
+function CtxContainer({children, scrollable}:{scrollable:boolean, children?:ReactNode}) {
+  return(
+    <>
+      {scrollable ? 
+      <ScrollArea className="h-[300px]">
+        {children}
+      </ScrollArea>
+      : 
+      <>{children}</>
+      }
+    </>
   )
 }

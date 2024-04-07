@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 import { debounce } from 'lodash';
 import { IEscalationTemplate, EscalationTemplate } from '@/types/escalationTemplate';
 
-import { storageKeys , GetPendings, GetRedemptionTemplates, GetSetups, GetStoredNotes } from '@/lib/data';
+import { storageKeys , GetPendings, GetRedemptionTemplates, GetSetups, GetStoredNotes, GetStandardTemplates } from '@/lib/data';
 import * as fsClient from '@/lib/firebase/clientApp';
 
 import { useDocumentDataOnce } from 'react-firebase-hooks/firestore'
@@ -26,6 +26,7 @@ import { auth } from '@/lib/firebase/clientApp';
 import { UserAuth } from './context/AuthContext';
 import PageLoader from '@/components/PageLoader';
 import { Skeleton } from '@/components/ui/skeleton';
+import { StandardTemplateGroup } from '@/types/standardTemplateGroup';
 
 const storageKey = storageKeys.notes;
 const storageKey_pending = storageKeys.pending;
@@ -44,6 +45,8 @@ export default function IndexPage() {
   
   const {user, isLoading: userIsLoading} = UserAuth();
 
+const [templateGroups, setTemplateGroups] = useState<StandardTemplateGroup[]>([]);
+
   useEffect(() => {
     if(userIsLoading) return;
     let cancel = false;
@@ -57,11 +60,14 @@ export default function IndexPage() {
             
           let setups = await fsClient.GetSetups();
         
+          let templateGroups = await fsClient.GetStandardTemplates();
+
           if(!cancel){
             setTemplate(templates);
             setPending(pendings);  
             setNotes(notes);  
             setDynamicContent(setups);
+            setTemplateGroups(templateGroups);
           }
           setLoading(false);
       })()
@@ -70,6 +76,7 @@ export default function IndexPage() {
       setTemplate(GetRedemptionTemplates())
       setPending(GetPendings())
       setDynamicContent(GetSetups())
+      setTemplateGroups(GetStandardTemplates());
       setLoading(false);
     }
     return () => {
@@ -270,6 +277,7 @@ export default function IndexPage() {
               OnMoveToPending={MoveToPending} OnUpdateEscalation={OnUpdateEscalation} OnUpdateEscalationValue={OnUpdateEscalationValue}
               noteDynamicContent={dynamicContent}
               templates={templates}
+              standardTemplateGroups={templateGroups}
               ></NoteCard>)
           }
         </div>

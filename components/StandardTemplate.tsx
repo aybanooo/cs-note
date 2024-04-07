@@ -32,99 +32,35 @@ import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu"
 
 import { TemplateContextContent } from '@/components/TemplateItemContextMenu'
 
-import { storageKeys } from '@/lib/data'
+import { storageKeys, GetStandardTemplates } from '@/lib/data'
 import { Separator } from "@/components/ui/separator"
 import * as fsClient from "@/lib/firebase/clientApp"
 import { UserAuth } from "@/app/context/AuthContext"
+import { StandardTemplate, StandardTemplateGroup } from "@/types/standardTemplateGroup"
+import StandardTemplateForm from "./StandaardTemplateForm"
 
-const storageKey = storageKeys.templates;
+const storageKey = storageKeys.standard_templates;
 
-export default function EscalationTemplateManager() {
-  const [selectedTemplate, setSelectedTemplate] = useState<IEscalationTemplate>(new EscalationTemplate('', '', ''))
-  const [templates, setTemplates] = useState<IEscalationTemplate[]>([])
-  const [selectedIsNew, setSelectedIsNew] = useState<boolean>(false);
+type props = {
+  Value: StandardTemplateGroup
+  OnSaveGroup: (group:StandardTemplateGroup) => Promise<void>
+}
+
+export default function StandardTemplateGroupComponent({Value, OnSaveGroup}: props) {
+  const [selectedTemplate, setSelectedTemplate] = useState<StandardTemplate>({
+    guid: '',
+    label: '',
+    value: ''
+  })
+  const [templates, setTemplates] = useState<StandardTemplate[]>([])
+  // const [selectedIsNew, setSelectedIsNew] = useState<boolean>(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { user, isLoading } = UserAuth();
 
+  const selectedIsNew:boolean =  selectedTemplate.guid == '';
 
-  const PersistTemplates = debounce(() => {
-    if (fsClient.IsLoggedIn()) {
-      fsClient.SaveTemplates(templates)
-    } else {
-      localStorage.setItem(storageKey, JSON.stringify(templates));
-    }
-  }, 400);
-
-  useEffect(() => {
-    if(isLoading) return;
-    let cancel = false;
-    if (fsClient.IsLoggedIn()) {
-      (async () => {
-        let templates = await fsClient.GetTemplates()
-        if (!cancel) {
-          if(templates.length == 0) {
-          }
-          setTemplates(templates);
-        }
-        setLoading(false);
-        return;
-      })()
-    } else {
-      let result = localStorage.getItem(storageKey);
-      if (result != null) {
-        try {
-          let t: EscalationTemplate[] = JSON.parse(result);
-          if (!cancel)
-            setTemplates(t);
-        } catch {
-  
-        }
-      }
-      setLoading(false);
-    }
-    return () => {
-      cancel = true;
-    }
-  }, [user, isLoading])
-
-  useEffect(() => {
-    if (loading || isLoading) return;
-      PersistTemplates();
-    return () => {
-      PersistTemplates.cancel()
-    }
-  }, [templates])
-
-  useEffect(() => {
-    if (templates.every(t => Boolean(t.guid?.trim()))) return;
-    setTemplates(curr => {
-      const d = [...curr];
-      for (const template of d) {
-        template.guid = uuidv4();
-      }
-      return d;
-    });
-  }, [templates])
-
-  useEffect(() => {
-    if (selectedTemplate.guid?.trim()) return;
-    setSelectedTemplate(curr => {
-      const d = Object.assign({}, curr);
-      SetGuid(d);
-      return d;
-    });
-  }, [selectedTemplate])
-
-  useEffect(() => {
-    setSelectedIsNew(curr => {
-      let guid = selectedTemplate.guid?.trim();
-      let exists = templates.find(t => t.guid === guid) != null;
-      return !exists
-    })
-  }, [selectedTemplate]);
-
-  function SetGuid(template: IEscalationTemplate) {
+  function SetGuid(template: StandardTemplate) {
     if (template.guid?.trim()) return;
     template.guid = uuidv4();
   }
@@ -145,13 +81,13 @@ export default function EscalationTemplateManager() {
     });
   }
 
-  function OnTemplateSelect(template: EscalationTemplate) {
+  function OnTemplateSelect(template: StandardTemplate) {
     setSelectedTemplate(template);
     setOpen(true);
   }
 
   function AddTemplate() {
-    setSelectedTemplate(new EscalationTemplate('', '', ''));
+    setSelectedTemplate( {guid: '', label: '', value: ''});
   }
 
   function HandleSaveOrCreate() {
@@ -171,7 +107,7 @@ export default function EscalationTemplateManager() {
     }
   }
 
-  function RemoveTemplate(template: EscalationTemplate) {
+  function RemoveTemplate(template: StandardTemplate) {
     setTemplates(curr => {
       const d = [...curr];
       let idx = d.findIndex(t => t.guid === template.guid);
@@ -217,7 +153,7 @@ export default function EscalationTemplateManager() {
             {selectedIsNew ? "Create a new redemption template. Label and content must be provided" : "Make changes to your redemption template here. Click save when you're done."}
           </DialogDescription>
         </DialogHeader>
-        <TemplateForm template={selectedTemplate} OnLabelChange={UpdateLabel} OnValueChange={UpdateContent} />
+        <StandardTemplateForm template={selectedTemplate} OnLabelChange={UpdateLabel} OnValueChange={UpdateContent} />
         <DialogFooter>
           <DialogTrigger asChild>
             <Button type="button" onClick={HandleSaveOrCreate} > {selectedIsNew ? 'Create' : 'Save changes'}</Button>

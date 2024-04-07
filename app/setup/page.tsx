@@ -80,13 +80,14 @@ const copy = (source: NoteContentInputType[], destination: NoteContent[], droppa
     id: uuidv4(),
     type: item,
     title: "New",
-    value: ""
+    value: "",
+    standardTemplateGroupId: undefined,
   });
   console.log('==> dest clone', destClone);
   return destClone;
 };
 
-import { storageKeys, GetAllData, ImportData, ExportableData } from '@/lib/data';
+import { storageKeys, GetAllData, ImportData, ExportableData, GetStandardTemplates } from '@/lib/data';
 const { setup: storageKey } = storageKeys;
 
 type DialogContent = NoteContent & {
@@ -107,6 +108,8 @@ import { UserAuth } from "../context/AuthContext";
 import { useAuthState } from "react-firebase-hooks/auth";
 import PageLoader from "@/components/PageLoader";
 import { Skeleton } from "@/components/ui/skeleton";
+import { StandardTemplateGroup } from "@/types/standardTemplateGroup";
+import { Badge } from "@/components/ui/badge";
 
 
 export default function Page() {
@@ -115,6 +118,7 @@ export default function Page() {
   const [sloading, setLoading] = useState(true);
   const [dialogItem, setDialogItem] = useState<DialogContent>();
   const [open, setOpen] = useState(false);
+  const [assignTemplateOpen, setAssignTemplateOpen] = useState(false);
   const {user, isLoading: loading} = UserAuth();
   const PersistTemplates = debounce(() => {
     if(fsClient.IsLoggedIn()) {
@@ -124,20 +128,27 @@ export default function Page() {
     }
   }, 400);
 
+  const [standardTemplateGroups, setStandardTemplateGroup] = useState<StandardTemplateGroup[]>([])
+  const [selectedNoteContent, setSelectedNoteContent] = useState<NoteContent|undefined>();
+
   useEffect(() => {
     setLoading(true);
     let cancel = false;
     if(fsClient.IsLoggedIn()) {
       (async () => {
         let data = await fsClient.GetSetups();
+        let templateGroup = await fsClient.GetStandardTemplates();
+
         if(!cancel) {
           setItems(data);
+          setStandardTemplateGroup(templateGroup);
         }
         setLoading(false);
         return;
       })()
     } else {
       let result = localStorage.getItem(storageKey);
+      let resultGroups = GetStandardTemplates();
       if (result != null) {
         try {
           let t: NoteContent[] = JSON.parse(result);
@@ -145,6 +156,7 @@ export default function Page() {
           if(!cancel) {
             setItems(t);
             setLoading(false);
+            setStandardTemplateGroup(resultGroups);
           }
         } catch {
           setLoading(false);
@@ -222,6 +234,22 @@ export default function Page() {
     form.setValue('Id', item.id, { shouldValidate: true });
     form.setValue('NewId', item.id, { shouldValidate: true });
     setOpen(true);
+  }
+
+  function AssignTemplate(item: NoteContent): void {
+    setSelectedNoteContent(item);
+    setAssignTemplateOpen(true);
+  }
+
+  function UpdateAssignedTemplate(standardTemplateGroupId:string) {
+    setItems( curr => {
+      let currCopy = [...curr];
+      if(selectedNoteContent == null) return currCopy;
+      let target = currCopy.find(x=>x.id === selectedNoteContent.id);
+      if(!target) return currCopy;
+      target.standardTemplateGroupId = standardTemplateGroupId;
+      return currCopy;
+    })
   }
 
   function Rename() {
@@ -469,7 +497,7 @@ export default function Page() {
                                           provided.draggableProps.style
                                         )}
                                       >
-                                        <Label className="basis-" htmlFor="account">{item.title}</Label>
+                                        <Label className="basis-" htmlFor="account">{item.title} {item.standardTemplateGroupId != null ? <Badge variant={"outline"} >{standardTemplateGroups.find(x=>x.guid == item.standardTemplateGroupId)?.groupName}</Badge> : ""}</Label>
                                         <div className="flex space-x-2">
                                           {item.type == "input" ? (
                                             <Input id={item.id} value={item.value} onChange={ e => OnComponentValueChange(item.id, e.target.value)}  />
@@ -483,7 +511,11 @@ export default function Page() {
                                     )}
                                   </Draggable>
                                 </ContextMenuTrigger>
-                                <ContextMenuSetupItem OnRemove={e => RemoveItem(item)} OnRename={e => ShowRenameModal(item)} />
+                                <ContextMenuSetupItem 
+                                  OnRemove={e => RemoveItem(item)} 
+                                  OnRename={e => ShowRenameModal(item)} 
+                                  OnAssignTemplate={e => AssignTemplate(item)}
+                                  />
                               </ContextMenu>
                             ))}
                             {provided.placeholder}
@@ -518,6 +550,33 @@ export default function Page() {
           </DragDropContext>
         </div>
       </Dialog>
+      
+      <Dialog open={assignTemplateOpen} onOpenChange={setAssignTemplateOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Assign Template</DialogTitle>
+            <DialogDescription>
+              Assign a standard template for the selected input.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2 py-4">
+              <Select onValueChange={t => UpdateAssignedTemplate(t)} value={selectedNoteContent?.standardTemplateGroupId}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a template group" />
+                </SelectTrigger>
+                <SelectContent>
+                  {
+                    standardTemplateGroups.map( tg => 
+                      <SelectItem value={tg.guid}>{tg.groupName}</SelectItem>
+                    )
+                  }
+                </SelectContent>
+              </Select>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
       <div className="sm:max-w-[425px]">
       </div>
     </section>
@@ -535,3 +594,4 @@ export default function Page() {
     )
   }
 }
+

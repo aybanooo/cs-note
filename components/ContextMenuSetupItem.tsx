@@ -20,9 +20,10 @@ import { NoteContent } from "@/types/note"
   type props = {
     OnRemove?: (e:Event) => void
     OnRename?: (e:Event) => void
+    OnAssignTemplate?: (e:Event) => void
   }
 
-  export default function TemplateContextContent({OnRemove, OnRename}:props) {
+  export default function TemplateContextContent({OnRemove, OnRename, OnAssignTemplate}:props) {
 
     return (
         <ContextMenuContent className="w-64">
@@ -33,6 +34,10 @@ import { NoteContent } from "@/types/note"
           <ContextMenuItem onSelect={OnRename} inset>
           Rename
             <ContextMenuShortcut>E</ContextMenuShortcut>
+          </ContextMenuItem>
+          <ContextMenuItem onSelect={OnAssignTemplate} inset>
+          Assign Template
+            <ContextMenuShortcut>T</ContextMenuShortcut>
           </ContextMenuItem>
         </ContextMenuContent>
     )
