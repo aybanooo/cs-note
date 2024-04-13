@@ -215,7 +215,7 @@ export default function StandardTemplateList() {
         </h1>
           <Accordion type="single" collapsible className="w-full">
             {
-              templateGroups.map(templateGroup => 
+              [...templateGroups].sort( (x,y) =>x.groupName.localeCompare(y.groupName)).map(templateGroup => 
               <AccordionItem key={templateGroup.guid} value={templateGroup.guid}>
                   <ContextMenu>
                     <ContextMenuTrigger>
