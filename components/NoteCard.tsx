@@ -96,7 +96,7 @@ export default function CardWithForm({note, noteDynamicContent, templates, stand
                       <Textarea autoComplete="off" id={input.id} value={GetContentValue(input.id)} onChange={e=> OnUpdateData(note, input.id, e.target.value)}/>
                     }
                       </ContextMenuTrigger>
-                      <ContextMenuContent>
+                      <ContextMenuContent onCloseAutoFocus={e => e.preventDefault()}>
                         <ContextMenuLabel>Templates</ContextMenuLabel>
                         <CtxContainer scrollable={(standardTemplateGroups.find(x=>x.guid == input?.standardTemplateGroupId)?.templates.length ?? 0 ) > 10 ?? false}>
                           {
@@ -109,7 +109,7 @@ export default function CardWithForm({note, noteDynamicContent, templates, stand
                               )
                               return <ContextMenuItem disabled >No Template</ContextMenuItem>;
                               return inputTemplate!.templates.map(tg => 
-                                <ContextMenuItem key={tg.guid} onClick={() => OnUpdateData(note, input.id, tg.value)} >{tg.label}</ContextMenuItem>
+                                <ContextMenuItem key={tg.guid} onClick={() => OnUpdateData(note, input.id, GetContentValue(input.id)+tg.value)} >{tg.label}</ContextMenuItem>
                               );
                             })()
                           }
