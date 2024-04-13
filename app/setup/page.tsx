@@ -460,7 +460,7 @@ export default function Page() {
               <Card className="col-span-6 md:col-span-4 h-fit shadow-xl">
                 <CardHeader>
                   <CardTitle>Preview</CardTitle>
-                  <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping. You can set default values by typing it in the created fields/components. For other action, you can righ-click a field.</CardDescription>
+                  <CardDescription>This is the preview of what will your notes look like. You can re-order the elements below by dragging & dropping. You can set default values by typing it in the created fields/components. For other action, you can right-click a field.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <form>
@@ -500,9 +500,9 @@ export default function Page() {
                                         <Label className="basis-" htmlFor="account">{item.title} {item.standardTemplateGroupId != null ? <Badge variant={"outline"} >{standardTemplateGroups.find(x=>x.guid == item.standardTemplateGroupId)?.groupName}</Badge> : ""}</Label>
                                         <div className="flex space-x-2">
                                           {item.type == "input" ? (
-                                            <Input id={item.id} value={item.value} onChange={ e => OnComponentValueChange(item.id, e.target.value)}  />
+                                            <Input id={item.id} value={item.value} onChange={ e => OnComponentValueChange(item.id, e.target.value)} placeholder="Type here to set default value ..." />
                                           ) : (
-                                            <Textarea value={item.value} onChange={ e => OnComponentValueChange(item.id, e.target.value)}></Textarea>
+                                            <Textarea value={item.value} onChange={ e => OnComponentValueChange(item.id, e.target.value)} placeholder="Type here to set default value ..."></Textarea>
                                           )}
                                           <Button style={{ pointerEvents: "none" }} type="button" variant="ghost" size="icon"><Icons.copy className='h-4 w-4' /></Button>
                                         </div>
