@@ -100,7 +100,7 @@ import * as z from "zod"
 const formSchema = z.object({
   Id: z.string(),
   NewId: z.string().min(2).max(40),
-  Label: z.string().min(2).max(15),
+  Label: z.string().min(2).max(40),
 })
 
 import * as fsClient from '@/lib/firebase/clientApp'
