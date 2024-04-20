@@ -38,7 +38,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { IEscalationTemplate, EscalationTemplate } from "@/types/escalationTemplate"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuTrigger } from "./ui/context-menu"
 import { StandardTemplateGroup } from "@/types/standardTemplateGroup"
-import { ReactNode } from "react"
+import { MouseEventHandler, ReactNode, RefObject, createRef, useEffect, useRef, useState } from "react"
 
 
 
@@ -73,6 +73,17 @@ export default function CardWithForm({note, noteDynamicContent, templates, stand
     return target.value;
   }
 
+  const arrLength = noteDynamicContent.length;
+  let [lastFocusInputId, setLastFocusInputId] = useState<string>('');
+  const inputRef = useRef<Array<HTMLInputElement|HTMLTextAreaElement|null>>([]);
+
+  function HandleCloseAutoFocus(idx:number) 
+  {
+    let target = inputRef.current[idx];
+    target?.focus();
+    target?.setSelectionRange(target.value.length, target.value.length);
+  }
+
   return (
     <Card className="w-full shadow-xl">
       <CardHeader>
@@ -83,7 +94,7 @@ export default function CardWithForm({note, noteDynamicContent, templates, stand
         <form>
           <div className="grid w-full items-center gap-4">
             {
-              noteDynamicContent.map(input => 
+              noteDynamicContent.map( (input, idx) => 
                 <div key={input.id} className="flex flex-col space-y-1.5">
                   <Label className="basis-" htmlFor={input.id}>{input.title}</Label>
                   <div className="flex space-x-2">
@@ -91,12 +102,12 @@ export default function CardWithForm({note, noteDynamicContent, templates, stand
                       <ContextMenuTrigger asChild onClick={() => console.log("sad")}>
                     {
                       input.type == "input" ?
-                      <Input autoComplete="off" id={input.id} value={GetContentValue(input.id)} onChange={e=> OnUpdateData(note, input.id, e.target.value)}/> 
+                      <Input ref={el => inputRef.current[idx] = el} autoComplete="off" id={input.id} value={GetContentValue(input.id)} onChange={e=> OnUpdateData(note, input.id, e.target.value)}/> 
                       :
-                      <Textarea autoComplete="off" id={input.id} value={GetContentValue(input.id)} onChange={e=> OnUpdateData(note, input.id, e.target.value)}/>
+                      <Textarea ref={el => inputRef.current[idx] = el} autoComplete="off" id={input.id} value={GetContentValue(input.id)} onChange={e=> OnUpdateData(note, input.id, e.target.value)}/>
                     }
                       </ContextMenuTrigger>
-                      <ContextMenuContent onCloseAutoFocus={e => e.preventDefault()}>
+                      <ContextMenuContent onCloseAutoFocus={ e => {e.preventDefault();HandleCloseAutoFocus(idx);}}>
                         <ContextMenuLabel>Templates</ContextMenuLabel>
                         <CtxContainer scrollable={(standardTemplateGroups.find(x=>x.guid == input?.standardTemplateGroupId)?.templates.length ?? 0 ) > 10 ?? false}>
                           {
@@ -108,7 +119,7 @@ export default function CardWithForm({note, noteDynamicContent, templates, stand
                                 || inputTemplate.templates.length == 0
                               )
                               return <ContextMenuItem disabled >No Template</ContextMenuItem>;
-                              return inputTemplate!.templates.map(tg => 
+                              return inputTemplate!.templates.toSorted((x,y) =>x.label.localeCompare(y.label)).map(tg => 
                                 <ContextMenuItem key={tg.guid} onClick={() => OnUpdateData(note, input.id, GetContentValue(input.id)+tg.value)} >{tg.label}</ContextMenuItem>
                               );
                             })()
